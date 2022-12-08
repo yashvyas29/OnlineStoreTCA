@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct CartCell: View {
-    let store: Store<CartItemDomain.State,CartItemDomain.Action>
+    let store: StoreOf<CartItemDomain>
     
     var body: some View {
         WithViewStore(self.store) { viewStore in

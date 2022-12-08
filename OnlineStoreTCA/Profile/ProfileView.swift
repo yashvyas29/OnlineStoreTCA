@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ProfileView: View {
-    let store: Store<ProfileDomain.State, ProfileDomain.Action>
+    let store: StoreOf<ProfileDomain>
     
     var body: some View {
         WithViewStore(self.store) { viewStore in

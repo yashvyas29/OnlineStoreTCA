@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct RootView: View {
-    let store: Store<RootDomain.State, RootDomain.Action>
+    let store: StoreOf<RootDomain>
     
     var body: some View {
         WithViewStore(self.store) { viewStore in

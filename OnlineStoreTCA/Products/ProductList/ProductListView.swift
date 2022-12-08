@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct ProductListView: View {
-    let store: Store<ProductListDomain.State,ProductListDomain.Action>
+    let store: StoreOf<ProductListDomain>
     
     var body: some View {
         WithViewStore(self.store) { viewStore in

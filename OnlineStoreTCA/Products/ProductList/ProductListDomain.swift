@@ -37,7 +37,7 @@ struct ProductListDomain: ReducerProtocol {
         case closeCart
     }
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some ReducerProtocolOf<Self> {
         Reduce { state, action in
             switch action {
             case .fetchProducts:

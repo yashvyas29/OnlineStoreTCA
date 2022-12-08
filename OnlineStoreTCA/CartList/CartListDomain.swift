@@ -47,7 +47,7 @@ struct CartListDomain: ReducerProtocol {
         case cartItem(id: CartItemDomain.State.ID, action: CartItemDomain.Action)
     }
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some ReducerProtocolOf<Self> {
         Reduce<State, Action> { state, action in
             switch action {
             case .didPressCloseButton:
