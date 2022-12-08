@@ -9,6 +9,8 @@ import Foundation
 import ComposableArchitecture
 
 struct ProfileDomain: ReducerProtocol {
+    @Dependency(\.apiClient) var apiClient
+
     struct State: Equatable {
         var profile: UserProfile = .default
         fileprivate var dataState = DataState.notStarted
@@ -27,8 +29,6 @@ struct ProfileDomain: ReducerProtocol {
         case fetchUserProfile
         case fetchUserProfileResponse(TaskResult<UserProfile>)
     }
-    
-    var fetchUserProfile: () async throws -> UserProfile
 
     func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
         switch action {
@@ -40,7 +40,7 @@ struct ProfileDomain: ReducerProtocol {
             state.dataState = .loading
             return .task {
                 await .fetchUserProfileResponse(
-                    TaskResult { try await fetchUserProfile() }
+                    TaskResult { try await apiClient.fetchUserProfile() }
                 )
             }
         case .fetchUserProfileResponse(.success(let profile)):

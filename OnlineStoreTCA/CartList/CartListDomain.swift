@@ -9,6 +9,8 @@ import Foundation
 import ComposableArchitecture
 
 struct CartListDomain: ReducerProtocol {
+    @Dependency(\.apiClient) var apiClient
+
     struct State: Equatable {
         var dataLoadingStatus = DataLoadingStatus.notStarted
         var cartItems: IdentifiedArrayOf<CartItemDomain.State> = []
@@ -44,8 +46,6 @@ struct CartListDomain: ReducerProtocol {
         case deleteCartItem(id: CartItemDomain.State.ID)
         case cartItem(id: CartItemDomain.State.ID, action: CartItemDomain.Action)
     }
-    
-    var sendOrder: ([CartItem]) async throws -> String
 
     var body: some ReducerProtocol<State, Action> {
         Reduce<State, Action> { state, action in
@@ -106,7 +106,7 @@ struct CartListDomain: ReducerProtocol {
                 let items = state.cartItems.map { $0.cartItem }
                 return .task {
                     await .didReceivePurchaseResponse(
-                        TaskResult { try await sendOrder(items) }
+                        TaskResult { try await apiClient.sendOrder(items) }
                     )
                 }
             case .cartItem(let id,let action):
@@ -121,7 +121,9 @@ struct CartListDomain: ReducerProtocol {
                 return Effect(value: .getTotalPrice)
             }
         }
-        .forEach(\.cartItems, action: /Action.cartItem) {}
+        .forEach(\.cartItems, action: /Action.cartItem) {
+            CartItemDomain()
+        }
     }
     
     private func verifyPayButtonVisibility(

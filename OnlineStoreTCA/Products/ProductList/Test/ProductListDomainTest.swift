@@ -12,11 +12,6 @@ import XCTest
 
 @MainActor
 class ProductListDomainTest: XCTestCase {
-    
-    override func setUp() async throws {
-        UUID.uuIdTestCounter = 0
-    }
-    
     func testFetchProductsSuccess() async {
         let products: [Product] = [
             .init(
@@ -39,15 +34,13 @@ class ProductListDomainTest: XCTestCase {
         
         let store = TestStore(
             initialState: ProductListDomain.State(),
-            reducer: ProductListDomain(
-                fetchProducts: {
-                    products
-                },
-                sendOrder: { _ in fatalError("unimplemented") },
-                uuid: { UUID.newUUIDForTest }
-            )
+            reducer: ProductListDomain()
         )
-        
+
+        store.dependencies.uuid = .incrementing
+        store.dependencies.apiClient.fetchProducts = { products }
+        store.dependencies.apiClient.sendOrder = { _ in fatalError("unimplemented") }
+
         let productId1 = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
         let productId2 = UUID(uuidString: "00000000-0000-0000-0000-000000000001")!
         
@@ -78,15 +71,13 @@ class ProductListDomainTest: XCTestCase {
         let error = APIClient.Failure()
         let store = TestStore(
             initialState: ProductListDomain.State(),
-            reducer: ProductListDomain(
-                fetchProducts: {
-                    throw error
-                },
-                sendOrder: { _ in fatalError("unimplemented") },
-                uuid: { UUID.newUUIDForTest }
-            )
+            reducer: ProductListDomain()
         )
-        
+
+        store.dependencies.uuid = .incrementing
+        store.dependencies.apiClient.fetchProducts = { throw error }
+        store.dependencies.apiClient.sendOrder = { _ in fatalError("unimplemented") }
+
         await store.send(.fetchProducts) {
             $0.dataLoadingStatus = .loading
         }
@@ -137,15 +128,13 @@ class ProductListDomainTest: XCTestCase {
             initialState: ProductListDomain.State(
                 productListState: identifiedProducts
             ),
-            reducer: ProductListDomain(
-                fetchProducts: {
-                    fatalError("unimplemented")
-                },
-                sendOrder: { _ in fatalError("unimplemented") },
-                uuid: { UUID.newUUIDForTest }
-            )
+            reducer: ProductListDomain()
         )
-        
+
+        store.dependencies.uuid = .incrementing
+        store.dependencies.apiClient.fetchProducts = { fatalError("unimplemented") }
+        store.dependencies.apiClient.sendOrder = { _ in fatalError("unimplemented") }
+
         await store.send(
             .product(
                 id: id1,
@@ -236,15 +225,13 @@ class ProductListDomainTest: XCTestCase {
             initialState: ProductListDomain.State(
                 productListState: identifiedProducts
             ),
-            reducer: ProductListDomain(
-                fetchProducts: {
-                    fatalError("unimplemented")
-                },
-                sendOrder: { _ in fatalError("unimplemented") },
-                uuid: { UUID.newUUIDForTest }
-            )
+            reducer: ProductListDomain()
         )
-        
+
+        store.dependencies.uuid = .incrementing
+        store.dependencies.apiClient.fetchProducts = { fatalError("unimplemented") }
+        store.dependencies.apiClient.sendOrder = { _ in fatalError("unimplemented") }
+
         let expectedCartState = CartListDomain.State(
             cartItems: IdentifiedArrayOf(
                 uniqueElements: [
@@ -283,18 +270,5 @@ class ProductListDomainTest: XCTestCase {
             $0.productListState = identifiedProducts
             $0.productListState[id: id1]?.addToCartState.count = 0
         }
-    }
-}
-
-
-extension UUID {
-    // uuIdTestCounter needs to be set to 0 on setUp() method
-    static var uuIdTestCounter: UInt = 0
-    
-    static var newUUIDForTest: UUID {
-        defer {
-            uuIdTestCounter += 1
-        }
-        return UUID(uuidString: "00000000-0000-0000-0000-\(String(format: "%012x", uuIdTestCounter))")!
     }
 }

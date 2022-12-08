@@ -19,8 +19,8 @@ struct APIClient {
 // This is the "live" fact dependency that reaches into the outside world to fetch the data from network.
 // Typically this live implementation of the dependency would live in its own module so that the
 // main feature doesn't need to compile it.
-extension APIClient {
-  static let live = Self(
+extension APIClient: DependencyKey {
+  static let liveValue = Self(
     fetchProducts: {
         let (data, _) = try await URLSession.shared
             .data(from: URL(string: "https://fakestoreapi.com/products")!)
@@ -48,4 +48,27 @@ extension APIClient {
         return profile
     }
   )
+}
+
+extension APIClient {
+    static var previewValue = Self(
+        fetchProducts: { Product.sample },
+        sendOrder: { _ in "OK" },
+        fetchUserProfile: { .sample }
+    )
+}
+
+extension APIClient {
+    static var testValue = Self(
+        fetchProducts: { Product.sample },
+        sendOrder: { _ in "OK" },
+        fetchUserProfile: { .sample }
+    )
+}
+
+extension DependencyValues {
+    var apiClient: APIClient {
+        get { self[APIClient.self] }
+        set { self[APIClient.self] = newValue }
+    }
 }

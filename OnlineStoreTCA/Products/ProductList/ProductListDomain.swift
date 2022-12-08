@@ -9,6 +9,9 @@ import Foundation
 import ComposableArchitecture
 
 struct ProductListDomain: ReducerProtocol {
+    @Dependency(\.uuid) var uuid
+    @Dependency(\.apiClient) var apiClient
+
     struct State: Equatable {
         var dataLoadingStatus = DataLoadingStatus.notStarted
         var shouldOpenCart = false
@@ -33,10 +36,6 @@ struct ProductListDomain: ReducerProtocol {
         case resetProduct(product: Product)
         case closeCart
     }
-    
-    var fetchProducts:  @Sendable () async throws -> [Product]
-    var sendOrder:  @Sendable ([CartItem]) async throws -> String
-    var uuid: @Sendable () -> UUID
 
     var body: some ReducerProtocol<State, Action> {
         Reduce { state, action in
@@ -49,7 +48,7 @@ struct ProductListDomain: ReducerProtocol {
                 state.dataLoadingStatus = .loading
                 return .task {
                     await .fetchProductsResponse(
-                        TaskResult { try await fetchProducts() }
+                        TaskResult { try await apiClient.fetchProducts() }
                     )
                 }
             case .fetchProductsResponse(.success(let products)):
@@ -130,7 +129,7 @@ struct ProductListDomain: ReducerProtocol {
             ProductDomain()
         }
         .ifLet(\.cartState, action: /Action.cart) {
-            CartListDomain(sendOrder: sendOrder)
+            CartListDomain()
         }
     }
     

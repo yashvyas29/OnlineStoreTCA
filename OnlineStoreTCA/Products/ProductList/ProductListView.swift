@@ -77,11 +77,7 @@ struct ProductListView_Previews: PreviewProvider {
         ProductListView(
             store: Store(
                 initialState: ProductListDomain.State(),
-                reducer: ProductListDomain(
-                    fetchProducts: { Product.sample },
-                    sendOrder: { _ in "OK" },
-                    uuid: { UUID() }
-                )
+                reducer: ProductListDomain()
             )
         )
     }

@@ -103,9 +103,7 @@ struct CartView_Previews: PreviewProvider {
                             }
                     )
                 ),
-                reducer: CartListDomain(
-                    sendOrder: { _ in "OK" }
-                )
+                reducer: CartListDomain()
             )
         )
     }

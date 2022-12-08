@@ -38,11 +38,11 @@ class CartListDomainTest: XCTestCase {
         
         let store = TestStore(
             initialState: CartListDomain.State(cartItems: cartItems),
-            reducer: CartListDomain(
-                sendOrder: { _ in fatalError("unimplemented") }
-            )
+            reducer: CartListDomain()
         )
-        
+
+        store.dependencies.apiClient.sendOrder = { _ in fatalError("unimplemented") }
+
         await store.send(.deleteCartItem(id: cartItemId1)) {
             $0.cartItems = [
                 .init(
@@ -88,11 +88,11 @@ class CartListDomainTest: XCTestCase {
         
         let store = TestStore(
             initialState: CartListDomain.State(cartItems: cartItems),
-            reducer: CartListDomain(
-                sendOrder: { _ in fatalError("unimplemented") }
-            )
+            reducer: CartListDomain()
         )
-        
+
+        store.dependencies.apiClient.sendOrder = { _ in fatalError("unimplemented") }
+
         await store.send(.deleteCartItem(id: cartItemId1)) {
             $0.cartItems = [
                 .init(
@@ -148,11 +148,11 @@ class CartListDomainTest: XCTestCase {
         
         let store = TestStore(
             initialState: CartListDomain.State(cartItems: cartItems),
-            reducer: CartListDomain(
-                sendOrder: { _ in "Success" }
-            )
+            reducer: CartListDomain()
         )
-        
+
+        store.dependencies.apiClient.sendOrder = { _ in "Success" }
+
         await store.send(.didConfirmPurchase) {
             $0.dataLoadingStatus = .loading
         }
@@ -196,11 +196,11 @@ class CartListDomainTest: XCTestCase {
         
         let store = TestStore(
             initialState: CartListDomain.State(cartItems: cartItems),
-            reducer: CartListDomain(
-                sendOrder: { _ in throw APIClient.Failure() }
-            )
+            reducer: CartListDomain()
         )
-        
+
+        store.dependencies.apiClient.sendOrder = { _ in throw APIClient.Failure() }
+
         await store.send(.didConfirmPurchase) {
             $0.dataLoadingStatus = .loading
         }
