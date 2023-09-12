@@ -12,7 +12,7 @@ struct ProductListView: View {
     let store: StoreOf<ProductListDomain>
     
     var body: some View {
-        WithViewStore(self.store) { viewStore in
+        WithViewStore(self.store, observe: { $0 }) { viewStore in
             NavigationView {
                 Group {
                     if viewStore.isLoading {
@@ -26,13 +26,16 @@ struct ProductListView: View {
                         
                     } else {
                         List {
-                            ForEachStore(
-                                self.store.scope(
-                                    state: \.productListState,
-                                    action: ProductListDomain.Action.product
-                                )
-                            ) {
-                                ProductCell(store: $0)
+                            ForEachStore(self.store.scope(
+                                state: \.productListState,
+                                action: ProductListDomain.Action.product
+                            )) { store in
+                                let cell = ProductCell(store: store)
+                                NavigationLink {
+                                    cell
+                                } label: {
+                                    cell
+                                }
                             }
                         }
                     }
@@ -77,7 +80,7 @@ struct ProductListView_Previews: PreviewProvider {
         ProductListView(
             store: Store(
                 initialState: ProductListDomain.State(),
-                reducer: ProductListDomain()
+                reducer: ProductListDomain.init
             )
         )
     }

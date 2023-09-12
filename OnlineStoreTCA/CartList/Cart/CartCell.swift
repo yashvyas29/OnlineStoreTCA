@@ -12,7 +12,7 @@ struct CartCell: View {
     let store: StoreOf<CartItemDomain>
     
     var body: some View {
-        WithViewStore(self.store) { viewStore in
+        WithViewStore(self.store, observe: { $0 }) { viewStore in
             VStack {
                 HStack {
                     AsyncImage(
@@ -79,7 +79,7 @@ struct CartCell_Previews: PreviewProvider {
                     id: UUID(),
                     cartItem: .sample.first!
                 ),
-                reducer: CartItemDomain()
+                reducer: CartItemDomain.init
             )
         )
         .previewLayout(.fixed(width: 300, height: 300))

@@ -8,16 +8,16 @@
 import Foundation
 import ComposableArchitecture
 
-struct CartListDomain: ReducerProtocol {
+struct CartListDomain: Reducer {
     @Dependency(\.apiClient) var apiClient
 
     struct State: Equatable {
         var dataLoadingStatus = DataLoadingStatus.notStarted
         var cartItems: IdentifiedArrayOf<CartItemDomain.State> = []
         var totalPrice: Double = 0.0
-        var confirmationAlert: AlertState<CartListDomain.Action>?
-        var errorAlert: AlertState<CartListDomain.Action>?
-        var successAlert: AlertState<CartListDomain.Action>?
+        @PresentationState var confirmationAlert: AlertState<Action>?
+        @PresentationState var errorAlert: AlertState<Action>?
+        @PresentationState var successAlert: AlertState<Action>?
         var isPayButtonHidden = false
         
         var totalPriceString: String {
@@ -47,7 +47,7 @@ struct CartListDomain: ReducerProtocol {
         case cartItem(id: CartItemDomain.State.ID, action: CartItemDomain.Action)
     }
 
-    var body: some ReducerProtocolOf<Self> {
+    var body: some ReducerOf<Self> {
         Reduce<State, Action> { state, action in
             switch action {
             case .didPressCloseButton:
@@ -104,21 +104,29 @@ struct CartListDomain: ReducerProtocol {
             case .didConfirmPurchase:
                 state.dataLoadingStatus = .loading
                 let items = state.cartItems.map { $0.cartItem }
-                return .task {
-                    await .didReceivePurchaseResponse(
-                        TaskResult { try await apiClient.sendOrder(items) }
-                    )
+                return .run { send in
+                    let result = await TaskResult {
+                        try await apiClient.sendOrder(items)
+                    }
+                    await send(.didReceivePurchaseResponse(result))
                 }
+//                return .task {
+//                    await .didReceivePurchaseResponse(
+//                        TaskResult { try await apiClient.sendOrder(items) }
+//                    )
+//                }
             case .cartItem(let id,let action):
                 switch action {
                 case .deleteCartItem:
-                    return .task {
-                        .deleteCartItem(id: id)
-                    }
+                    return .send(.deleteCartItem(id: id))
+//                    return .task {
+//                        .deleteCartItem(id: id)
+//                    }
                 }
             case .deleteCartItem(let id):
                 state.cartItems.remove(id: id)
-                return Effect(value: .getTotalPrice)
+                return .send(.getTotalPrice)
+//                return Effect(value: .getTotalPrice)
             }
         }
         .forEach(\.cartItems, action: /Action.cartItem) {
@@ -128,7 +136,7 @@ struct CartListDomain: ReducerProtocol {
     
     private func verifyPayButtonVisibility(
         state: inout State
-    ) -> Effect<Action, Never> {
+    ) -> Effect<Action> {
         state.isPayButtonHidden = state.totalPrice == 0.0
         return .none
     }

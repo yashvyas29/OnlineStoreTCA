@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-struct ProductListDomain: ReducerProtocol {
+struct ProductListDomain: Reducer {
     @Dependency(\.uuid) var uuid
     @Dependency(\.apiClient) var apiClient
 
@@ -37,7 +37,7 @@ struct ProductListDomain: ReducerProtocol {
         case closeCart
     }
 
-    var body: some ReducerProtocolOf<Self> {
+    var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .fetchProducts:
@@ -46,10 +46,12 @@ struct ProductListDomain: ReducerProtocol {
                 }
 
                 state.dataLoadingStatus = .loading
-                return .task {
-                    await .fetchProductsResponse(
-                        TaskResult { try await apiClient.fetchProducts() }
-                    )
+                return .run { send in
+                    let result = await TaskResult { try await apiClient.fetchProducts() }
+                    await send(.fetchProductsResponse(result))
+//                    await .fetchProductsResponse(
+//                        TaskResult { try await apiClient.fetchProducts() }
+//                    )
                 }
             case .fetchProductsResponse(.success(let products)):
                 state.dataLoadingStatus = .success
@@ -73,15 +75,11 @@ struct ProductListDomain: ReducerProtocol {
                     return closeCart(state: &state)
                 case .dismissSuccessAlert:
                     resetProductsToZero(state: &state)
-                    return .task {
-                        .closeCart
-                    }
+                    return .send(.closeCart)
                 case .cartItem(_, let action):
                     switch action {
                     case .deleteCartItem(let product):
-                        return .task {
-                            .resetProduct(product: product)
-                        }
+                        return .send(.resetProduct(product: product))
                     }
                 default:
                     return .none
@@ -135,10 +133,9 @@ struct ProductListDomain: ReducerProtocol {
     
     private func closeCart(
         state: inout State
-    ) -> Effect<Action, Never> {
+    ) -> Effect<Action> {
         state.shouldOpenCart = false
         state.cartState = nil
-        
         return .none
     }
     

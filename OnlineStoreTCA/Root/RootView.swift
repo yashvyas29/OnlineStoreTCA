@@ -12,7 +12,7 @@ struct RootView: View {
     let store: StoreOf<RootDomain>
     
     var body: some View {
-        WithViewStore(self.store) { viewStore in
+        WithViewStore(self.store, observe: { $0 }) { viewStore in
             TabView(
                 selection: viewStore.binding(
                     get: \.selectedTab,
@@ -52,7 +52,7 @@ struct RootView_Previews: PreviewProvider {
         RootView(
             store: Store(
                 initialState: RootDomain.State(),
-                reducer: RootDomain()
+                reducer: RootDomain.init
             )
         )
     }

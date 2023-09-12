@@ -8,7 +8,7 @@
 import Foundation
 import ComposableArchitecture
 
-struct RootDomain: ReducerProtocol {
+struct RootDomain: Reducer {
     struct State: Equatable {
         var selectedTab = Tab.products
         var productListState = ProductListDomain.State()
@@ -26,7 +26,7 @@ struct RootDomain: ReducerProtocol {
         case profile(ProfileDomain.Action)
     }
 
-    var body: some ReducerProtocol<State, Action> {
+    var body: some Reducer<State, Action> {
         Scope(state: \.productListState, action: /Action.productList) {
             ProductListDomain()
         }

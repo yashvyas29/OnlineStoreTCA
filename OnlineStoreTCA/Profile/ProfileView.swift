@@ -12,7 +12,7 @@ struct ProfileView: View {
     let store: StoreOf<ProfileDomain>
     
     var body: some View {
-        WithViewStore(self.store) { viewStore in
+        WithViewStore(self.store, observe: { $0 }) { viewStore in
             NavigationView {
                 ZStack {
                     Form {
@@ -49,7 +49,7 @@ struct ProfileView_Previews: PreviewProvider {
         ProfileView(
             store: Store(
                 initialState: ProfileDomain.State(),
-                reducer: ProfileDomain()
+                reducer: ProfileDomain.init
             )
         )
     }
