@@ -12,12 +12,14 @@ import ComposableArchitecture
 struct OnlineStoreTCAApp: App {
     var body: some Scene {
         WindowGroup {
-            RootView(
-                store: Store(
-                    initialState: RootDomain.State(),
-                    reducer: RootDomain.init
+            if !_XCTIsTesting {
+                RootView(
+                    store: Store(
+                        initialState: RootDomain.State(),
+                        reducer: RootDomain.init
+                    )
                 )
-            )
+            }
         }
     }
 }

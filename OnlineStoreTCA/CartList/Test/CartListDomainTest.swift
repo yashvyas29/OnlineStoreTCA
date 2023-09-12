@@ -38,7 +38,7 @@ class CartListDomainTest: XCTestCase {
         
         let store = TestStore(
             initialState: CartListDomain.State(cartItems: cartItems),
-            reducer: CartListDomain()
+            reducer: CartListDomain.init
         )
 
         store.dependencies.apiClient.sendOrder = { _ in fatalError("unimplemented") }
@@ -88,7 +88,7 @@ class CartListDomainTest: XCTestCase {
         
         let store = TestStore(
             initialState: CartListDomain.State(cartItems: cartItems),
-            reducer: CartListDomain()
+            reducer: CartListDomain.init
         )
 
         store.dependencies.apiClient.sendOrder = { _ in fatalError("unimplemented") }
@@ -148,7 +148,7 @@ class CartListDomainTest: XCTestCase {
         
         let store = TestStore(
             initialState: CartListDomain.State(cartItems: cartItems),
-            reducer: CartListDomain()
+            reducer: CartListDomain.init
         )
 
         store.dependencies.apiClient.sendOrder = { _ in "Success" }
@@ -196,7 +196,7 @@ class CartListDomainTest: XCTestCase {
         
         let store = TestStore(
             initialState: CartListDomain.State(cartItems: cartItems),
-            reducer: CartListDomain()
+            reducer: CartListDomain.init
         )
 
         store.dependencies.apiClient.sendOrder = { _ in throw APIClient.Failure() }

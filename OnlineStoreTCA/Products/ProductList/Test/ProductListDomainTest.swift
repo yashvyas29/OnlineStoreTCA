@@ -34,7 +34,7 @@ class ProductListDomainTest: XCTestCase {
         
         let store = TestStore(
             initialState: ProductListDomain.State(),
-            reducer: ProductListDomain()
+            reducer: ProductListDomain.init
         )
 
         store.dependencies.uuid = .incrementing
@@ -71,7 +71,7 @@ class ProductListDomainTest: XCTestCase {
         let error = APIClient.Failure()
         let store = TestStore(
             initialState: ProductListDomain.State(),
-            reducer: ProductListDomain()
+            reducer: ProductListDomain.init
         )
 
         store.dependencies.uuid = .incrementing
@@ -128,7 +128,7 @@ class ProductListDomainTest: XCTestCase {
             initialState: ProductListDomain.State(
                 productListState: identifiedProducts
             ),
-            reducer: ProductListDomain()
+            reducer: ProductListDomain.init
         )
 
         store.dependencies.uuid = .incrementing
@@ -225,7 +225,7 @@ class ProductListDomainTest: XCTestCase {
             initialState: ProductListDomain.State(
                 productListState: identifiedProducts
             ),
-            reducer: ProductListDomain()
+            reducer: ProductListDomain.init
         )
 
         store.dependencies.uuid = .incrementing
@@ -262,13 +262,13 @@ class ProductListDomainTest: XCTestCase {
         await store.receive(.cart(.deleteCartItem(id: id1))) {
             $0.cartState?.cartItems = []
         }
-        await store.receive(.cart(.getTotalPrice)) {
-            $0.cartState?.totalPrice = 0
-            $0.cartState?.isPayButtonHidden = true
-        }
         await store.receive(.resetProduct(product: products.first!)) {
             $0.productListState = identifiedProducts
             $0.productListState[id: id1]?.addToCartState.count = 0
+        }
+        await store.receive(.cart(.getTotalPrice)) {
+            $0.cartState?.totalPrice = 0
+            $0.cartState?.isPayButtonHidden = true
         }
     }
 }
