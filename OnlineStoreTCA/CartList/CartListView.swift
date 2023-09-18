@@ -63,15 +63,21 @@ struct CartListView: View {
                     viewStore.send(.getTotalPrice)
                 }
                 .navigationTitle("Cart")
-                .alert(store: store.scope(
-                    state: \.$confirmationAlert,
-                    action: { _ in .didCancelConfirmation }))
-                .alert(store: store.scope(
-                    state: \.$successAlert,
-                    action: { _ in .dismissSuccessAlert }))
-                .alert(store: store.scope(
-                    state: \.$errorAlert,
-                    action: { _ in .dismissErrorAlert }))
+                .alert(
+                    store: self.store.scope(state: \.$destination, action: { .destination($0) }),
+                    state: /CartListDomain.Destination.State.confirmationAlert,
+                    action: CartListDomain.Destination.Action.confirmationAlert
+                )
+                .alert(
+                    store: self.store.scope(state: \.$destination, action: { .destination($0) }),
+                    state: /CartListDomain.Destination.State.successAlert,
+                    action: CartListDomain.Destination.Action.successAlert
+                )
+                .alert(
+                    store: self.store.scope(state: \.$destination, action: { .destination($0) }),
+                    state: /CartListDomain.Destination.State.errorAlert,
+                    action: CartListDomain.Destination.Action.errorAlert
+                )
             }
             if viewStore.isRequestInProcess {
                 Color.black.opacity(0.2)
